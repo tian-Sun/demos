@@ -1,0 +1,29 @@
+html,
+body {
+    height: 100%;
+}
+.container-fluid {
+    height: inherit;
+
+    background: linear-gradient(#4ca2b9 , #e8e2c2, #35447f);
+    background-repeat: no-repeat;
+    background-clip: all;
+    background-size: 100% 100%;
+}
+
+.content {
+    margin-top: 10%;
+}
+
+.login-form {
+    /*padding: 10px;*/
+    background: #fff;
+}
+
+.school-options li {
+    padding-left: 13px;
+}
+
+.school-list {
+    background: #ddd;
+}
