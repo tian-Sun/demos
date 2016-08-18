@@ -67,13 +67,35 @@
 				}
 			};
 			var i = 0;//向下搜索参数
-			var f = 4;//向上搜索参数
+
+			var f = 4;//向上搜索参数，现在是静态的
+
+			var firstDown = false;
+			// var firstUp = false; //非静态需要此参数
 			$scope.keyboardSelect = function(ev) {
+				/*var f = $scope.data.length - 1;
+
+                $scope.selectedWord = [];
+                for (var m = 0; m <= f; m++) {
+                    $scope.selectedWord[m] = false;
+                }*/
+                //项目中，数据从接口来，因为是动态数据，所以需要把列表项和向上搜索参数在这里设置
+                //因为数据是动态的所以下面很多代表条数的参数也需要用变量代替。
 				if (ev.which == 13) {
 					$scope.ngShows.schoolList = false;
 				}
 				if (ev.which == 40) {
-					$scope.schoolInput = $scope.data[i].name;
+					if (!firstDown) {
+						tempInput = $scope.schoolInput;
+						firstDown = true;
+					}
+					if (i == 5) {
+						i = -1;
+						$scope.schoolInput = tempInput;
+					} else {
+						$scope.schoolInput = $scope.data[i].name;
+					}
+					
 					for (var j = 0; j < 5; j++) {
 						if (j == i) {
 							$scope.selectedWord[i] = true;
@@ -81,13 +103,15 @@
 							$scope.selectedWord[j] = false;
 						}
 					}
-					i++;
-					if (i == 5) {
-						i = 0;
-					}
+					i++;	
 				}
 				if (ev.which == 38) {
-					$scope.schoolInput = $scope.data[f].name;
+					if (f == -1) {
+						f = 5;
+						$scope.schoolInput = tempInput;
+					} else {
+						$scope.schoolInput = $scope.data[f].name;
+					}
 					for (var j = 4; j >= 0; j--) {
 						if (j == f) {
 							$scope.selectedWord[f] = true;
@@ -96,21 +120,23 @@
 						}
 					}
 					f--;
-					if (f == -1) {
-						f = 4;
-					}
 				}
 			};
-			$scope.selectedWord = [false,false,false,false,false];
-
 			// 模拟数据
 			$scope.data = [
-				{"name":"1"},
-				{"name":"2"},
-				{"name":"3"},
-				{"name":"4"},
-				{"name":"5"}
+				{"name":"车"},
+				{"name":"377"},
+				{"name":"ear"},
+				{"name":"大"},
+				{"name":"梅"}
 			];
+
+			$scope.selectedWord = [];
+            for (var m = 0; m < $scope.data.length; m++) {
+                $scope.selectedWord[m] = false;
+            }
+
+			
 		});
 	</script>
 	
