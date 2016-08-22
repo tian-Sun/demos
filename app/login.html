@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>1</title>
+	<title>login</title>
 	<link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="resources/css/login.css">
 </head>
@@ -15,9 +15,9 @@
 			<div class="col-lg-4 col-lg-offset-4 form-horizontal login-form">
 				<p class="well text-center form-head">用户登录</p>
 				<div class="form-group">
-					<input type="text" style="display: none;">
-					<input type="password" style="display: none;">
-					<!-- 防止记住密码 -->
+					<!-- <input type="text" style="display: none;">
+					<input type="password" style="display: none;"> -->
+					<!-- 防止记住密码 但是有的浏览器有时候还是会弹出提示 所以，在管理界面有input的地方之前，插入上面两行代码，可防止浏览器自动填充账户和密码-->
 					<label for="acount" class="col-sm-2 control-label">账户：</label>
 					<div class="col-sm-10">
 						<input class="form-control" type="text" required placeholder="请输入帐号或手机号" ng-model="user.acount"></input>
@@ -82,9 +82,17 @@
                 //项目中，数据从接口来，因为是动态数据，所以需要把列表项和向上搜索参数在这里设置
                 //因为数据是动态的所以下面很多代表条数的参数也需要用变量代替。
 				if (ev.which == 13) {
+					//回车
 					$scope.ngShows.schoolList = false;
 				}
+				if (ev.which == 8) {
+					//删除
+                    firstDown = false;
+                    firstUp = false;
+                    i = 0;
+                }
 				if (ev.which == 40) {
+					//向下方向键
 					if (!firstDown) {
 						tempInput = $scope.schoolInput;
 						firstDown = true;
@@ -106,6 +114,7 @@
 					i++;	
 				}
 				if (ev.which == 38) {
+					//向上方向键
 					if (f == -1) {
 						f = 5;
 						$scope.schoolInput = tempInput;
