@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<!-- saved from url=(0038)http://v3.bootcss.com/examples/signin/ -->
+<html lang="zh-CN" ng-app="login">
+<head ng-controller="head">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- <link rel="icon" href="logo.png"> -->
+    <link rel="icon" href="{{tenant.iconUrl}}">
+    <title>{{tenant.title}}</title>
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/pages/login.css">
+    <script src="js/jquery_1.11.3.js"></script>
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]>
+    <script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="js/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+<div class="container">
+    <div class="contMessage">
+        <h2 class="form-signin-heading">用户登录</h2>
+        <div class="form-signin" ng-controller="loginController" name="loginForm">
+            <label for="inputUser" class="control-label">账号</label>
+            <span class="login-error" ng-bind="errorMessage"></span>
+            <input type="text" style="display: none;">
+            <input type="password" style="display: none;">
+            <input type="text" id="J_inputUser" class="form-control" placeholder="请输入账号" ng-model="user.loginName" required ng-focus="cancelError()" />
+
+            <label class="control-label">密码</label>
+            <input type="password" id="J_inputPass" class="form-control block-white login-pass" placeholder="请输入密码" ng-model="passwordShow" required ng-focus="cancelError()" />
+
+            <label class="control-label">学校</label>
+            <input type="text" class="form-control" placeholder="请输入学校名称" ng-model="test" ng-keydown="keyboardSelect($event)"
+                    ng-change="schoolChange()" ng-focus="cancelError()" required />
+            <div ng-bind="labelResults"></div>
+            <div>
+                <ul ng-show="isShow" class="login-school" >
+                    <li ng-repeat="x in tenants" ng-click="pitch(x)" ng-style="myColor" ng-class="{'school-list': selectedWord[$index]}">
+                        <span ng-bind="x.tenantName"></span>
+                    </li>
+                </ul>
+            </div>
+            <button class="btn btn-lg btn-info btn-block login-signin login-btns" type="submit"
+                    ng-click="clickSubmit()">登&nbsp;录
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="js/ie10-viewport-bug-workaround.js"></script>
+<!-- angular -->
+<script src="js/angular/angular.min.js"></script>
+<script src="js/angular/angular-route.min.js"></script>
+<!-- <script src="http://cdn.bootcss.com/ngStorage/0.3.10/ngStorage.js"></script> -->
+<script src="js/angular/ngStorage.js"></script>
+<script src="js/ng-rap.min.js"></script>
+<script src="js/jQuery.md5.js"></script>
+
+<script>
+    var login = angular.module('login', ['ngStorage', 'ngRap']);
+
+    login.controller('head', ['$scope','$http','$location','$rootScope', function($scope, $http, $location, $rootScope){
+        var url = $location.host();
+        var reg = /\./;
+        var result = url.split(reg);
+        $http.get('~~~~~~' + result[0]).success(function (data) {
+            $scope.tenant = data;
+            $rootScope.parentId = data.tenantId;
+        }).error(function (data, status) {
+            console.log('租户域名信息未找到')
+        });
+    }])
+    login.controller('loginController', ['$scope', '$http', '$localStorage','$rootScope','$timeout',
+        function ($scope, $http, $localStorage, $rootScope, $timeout) {
+            $scope.user;
+            $scope.filteredItems;
+            $scope.errorMessage = "";
+            $scope.isShow = false;
+            $scope.$watch('$viewContentLoaded', function() {
+                $timeout(function() {
+                    $scope.inputPassword = true;
+                },5);  
+                
+            });
+            $scope.cancelError = function() {
+                $scope.errorMessage = '';
+            };
+            $scope.clickSubmit = function() {
+                
+                    $scope.acountSures = 0;
+                    $scope.passSure = 0;
+                    $scope.schoolSure = 0;
+
+                if (!angular.isUndefined($scope.user.loginName)) {
+                    $scope.acountSures = 1;
+                } else {
+                    $scope.errorMessage = '请输入帐号';
+                }
+
+                if (!angular.isUndefined($scope.passwordShow)) {
+                    $scope.user.password = $.md5($scope.passwordShow);
+                    $scope.passSure = 1;
+                } else {
+                    $scope.errorMessage = '请输入正确密码';
+                }
+
+                if (!angular.isUndefined($scope.test)) {
+                    $scope.user.tenantName = $scope.test;
+                    $scope.schoolSure = 1;
+                } else {
+                    $scope.errorMessage = '请输入或选择学校';
+                }
+                var sure = $scope.acountSures && $scope.passSure && $scope.schoolSure;
+                if (sure) {
+                    $scope.user.parentTenantId = $rootScope.parentId;
+                    $http.post('~~~~~~', $scope.user).success(function (response) {
+                        
+                        $localStorage.token = response.token;
+                        $localStorage.username = response.username;
+                        $localStorage.role = response.role;
+                        $localStorage.userId = response.userId;
+                        $localStorage.tenantId = response.tenantId;
+                        $localStorage.loginName = response.loginName;
+                        $localStorage.power = response.power;
+                        alert('登录成功');
+                        window.location.href = '~~~~~';
+                    }).error(function (data, state) {
+                        if (state == 403) {
+                            delete $scope.passwordShow;
+                            $scope.user.password = null;
+                            $scope.errorMessage = data.errorDescription;
+                        }
+                    });
+                }
+            }
+            
+            $scope.schoolChange = function () {
+                if (angular.isUndefined($scope.test)||$scope.test=='') {
+                    $scope.isShow = false;
+                } else {
+                    $http.get('~~~~' + '&kw=' + encodeURI($scope.test)).success(function (data) {
+                        if ($scope.test == data.kw) {
+                            $scope.tenants = data.tenants;
+                            $scope.schoolListLength = data.tenants.length;
+                        }
+                    });
+                    $scope.isShow = true;
+                }
+            };
+                var i = 0;//向下搜索参数
+                var firstDown = false;
+                var firstUp = false;
+                $scope.keyboardSelect = function(ev) {
+                    var f = $scope.schoolListLength - 1;
+
+                    $scope.selectedWord = [];
+                    for (var m = 0; m < $scope.schoolListLength; m++) {
+                        $scope.selectedWord[m] = false;
+                    }
+                    if (ev.which == 13) {
+                        $scope.isShow = false;
+                    }
+                    if (ev.which == 8) {
+                        firstDown = false;
+                        firstUp = false;
+                        i = 0;
+                    }
+                    if (ev.which == 40) {
+                        if (!firstDown) {
+                            tempInput = $scope.test;
+                            firstDown = true;
+                        }
+                        if (i == $scope.schoolListLength) {
+                            i = -1;
+                            $scope.test = tempInput;
+                        } else {
+                            $scope.test = $scope.tenants[i].tenantName;
+                            for (var j = 0; j < $scope.schoolListLength; j++) {
+                                if (j == i) {
+                                    $scope.selectedWord[j] = true;
+                                } else {
+                                    $scope.selectedWord[j] = false;
+                                }
+                                
+                            }
+                        }
+                        i++;
+                    }
+                    if (ev.which == 38) {
+                        if (!firstUp) {
+                            e = f;
+                            firstUp = true;
+                        }
+                        if (e == -1) {
+                            e = $scope.schoolListLength;
+                            $scope.test = tempInput;
+                        } else {
+                            $scope.test = $scope.tenants[e].tenantName;
+                        }
+                        for (var k = $scope.schoolListLength; k >= 0; k--) {
+                            if (k == e) {
+                                $scope.selectedWord[k] = true;
+                            } else {
+                                $scope.selectedWord[k] = false;
+                            }
+                        }
+                        e--;
+                    }
+                };
+            
+            $scope.postBlur = function () {
+                for (var i = 0; i < $scope.tenants.length; i++) {
+                   var tenant = $scope.tenants[i];
+                   if($scope.test==tenant.tenantName){
+                       $scope.user.tenantId=tenant.tenantId;
+                       $scope.isShow = false;
+                   }
+                }
+            }
+            $scope.myColor = {cursor: 'pointer'};
+            $scope.pitch = function (x) {
+                $scope.test = x.tenantName;
+                $scope.user.tenantId = x.tenantId;
+                $scope.isShow = false;
+            };
+        }]);
+</script>
+</body>
+</html>
